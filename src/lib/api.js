@@ -1,13 +1,17 @@
-// Change this to match your backend server address
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+// src/lib/api.js
 
-// A helper function that does the actual fetch() call
+// Change the fallback key name to ensure Vercel reads the absolute URL
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
 async function request(path, options) {
-  // 🔄 FIX: Clean up trailing and leading slashes to prevent url doubling bugs!
-  let cleanBase = BASE_URL.replace(/\/+$/, ""); // Removes any trailing slashes from your Vercel URL
-  let cleanPath = "/" + path.replace(/^\/+/, ""); // Ensures path starts with exactly ONE slash
+  // If the environment variable isn't loaded yet, fall back cleanly
+  const apiBase = BASE_URL || "http://localhost:5000/api";
 
+  const cleanBase = apiBase.replace(/\/+$/, "");
+  const cleanPath = "/" + path.replace(/^\/+/, "");
   const url = `${cleanBase}${cleanPath}`;
+
+  console.log("Sending request to:", url); // This will let you inspect the final URL in your browser console
 
   const response = await fetch(url, {
     headers: {
@@ -107,7 +111,7 @@ export const attendanceApi = {
   update: function (id, studentId, status) {
     // 🔄 FIXED: Matches the router .patch() method on your backend file!
     return request("/attendance/" + id, {
-      method: "PATCH", 
+      method: "PATCH",
       body: JSON.stringify({ studentId: studentId, status: status }),
     });
   },
