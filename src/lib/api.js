@@ -83,8 +83,11 @@ export const studentsApi = {
 
 // ---------------- ATTENDANCE ----------------
 export const attendanceApi = {
-  // 1. Updated to pass date, departmentId AND semester filter queries
+  // 1. Updated to call your Express mount router point cleanly
   getAll: function (date, departmentId, semester) {
+    // 🔄 FIXED: Path should be relative to your BASE_URL wrapper!
+    // If your BASE_URL is "https://students-attendence-system.onrender.com/api",
+    // then this turns into: /api/attendance?date=...
     let path = `/attendance?date=${date}`;
 
     if (departmentId) {
@@ -108,13 +111,14 @@ export const attendanceApi = {
   // 3. Modifies status safely on backend container array structure
   update: function (id, studentId, status) {
     return request("/attendance/" + id, {
-      method: "PUT", // 🔄 FIXED: Changed from "PATCH" to "PUT" to match your backend router route
+      method: "PUT",
       body: JSON.stringify({ studentId: studentId, status: status }),
     });
   },
 
   // 4. View filters utility fallback
   getByFilters: function (departmentId, semester, date) {
+    // 🔄 FIXED: Ensured route matches your standard getAll architecture paths
     let url = `/attendance?departmentId=${departmentId}&semester=${semester}`;
     if (date) {
       url += `&date=${date}`;
