@@ -1,26 +1,26 @@
-// This file is the ONLY place that talks to your backend.
-// If your backend routes are different, just change the URLs below.
-
 // Change this to match your backend server address
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 // A helper function that does the actual fetch() call
-// Every API function below uses this, so we don't repeat ourselves
 async function request(path, options) {
-  const response = await fetch(BASE_URL + path, {
+  // 🔄 FIX: Clean up trailing and leading slashes to prevent url doubling bugs!
+  let cleanBase = BASE_URL.replace(/\/+$/, ""); // Removes any trailing slashes from your Vercel URL
+  let cleanPath = "/" + path.replace(/^\/+/, ""); // Ensures path starts with exactly ONE slash
+
+  const url = `${cleanBase}${cleanPath}`;
+
+  const response = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
     },
-    ...options, // this lets us pass method: "POST", body: ... etc.
+    ...options,
   });
 
   if (!response.ok) {
-    // Something went wrong (like a 404 or 500 error)
     const errorText = await response.text();
     throw new Error(errorText || "Something went wrong: " + response.status);
   }
 
-  // If the server sent back "no content", don't try to parse JSON
   if (response.status === 204) {
     return null;
   }
@@ -79,8 +79,6 @@ export const studentsApi = {
   },
 };
 
-
-
 // ---------------- ATTENDANCE ----------------
 export const attendanceApi = {
   // 1. Updated to call your Express mount router point cleanly
@@ -126,4 +124,3 @@ export const attendanceApi = {
     return request(url);
   },
 };
-
